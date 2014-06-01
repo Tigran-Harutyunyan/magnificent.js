@@ -1,0 +1,19 @@
+{
+  "name": "magnificent",
+  "version": "1.0.0-beta",
+  "authors": [
+    "Anders D. Johnson"
+  ],
+  "license": "MIT",
+  "ignore": [
+    "**/.*",
+    "node_modules",
+    "bower_components",
+    "test",
+    "tests"
+  ],
+  "dependencies": {
+    "jquery": "1",
+    "jquery-mousewheel": "~3.1.11"
+  }
+}

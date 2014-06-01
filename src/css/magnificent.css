@@ -1,0 +1,11 @@
+.mg-zoom {
+  position: relative;
+  overflow: hidden;
+}
+.mg-zoomed {
+  position: absolute;
+  z-index: -1;
+}
+.mg-zoomed img {
+  width: 100%;
+}
