@@ -1,6 +1,7 @@
 (function (root) {
 
   var Zoom = function Zoom (options) {
+
     options = this.options = $.extend({}, Zoom.defaultOptions, options);
 
     // shouldn't zoom bounce if not smooth
@@ -77,13 +78,13 @@
       if (this.options.zoomBounce) {
         setTimeout(function () {
           _this.goal.zoom = _this.options.minZoom;
-          console.log('bounced');
         }, _this.options.zoomBounceTime);
       }
       else {
         zoom = _this.options.minZoom;
       }
     }
+    this.$element.trigger('zoom.change.mg', zoom);
     this.goal.zoom = zoom;
     return true;
   };
@@ -126,12 +127,13 @@
    */
   Zoom.prototype.setCenter = function (center) {
     this.goal.center = center;
-  }
+    this.$element.trigger('center.change.mg', center);
+  };
 
   Zoom.prototype.position = function () {
     // console.log(this.state);
-    var position = this.computePosition();
-    this.$zoomed.css(position);
+    var style = this.computeStyle();
+    this.$zoomed.css(style);
   };
 
   /**
@@ -157,9 +159,9 @@
     setTimeout(function () {
       _this.frame();
     }, this.options.frameTime);
-  }
+  };
 
-  Zoom.prototype.computePosition = function () {
+  Zoom.prototype.computeStyle = function () {
     var _this = this;
     var leftPercent = _this.state.center.x * -100;
     leftPercent = (_this.state.center.x * _this.state.zoom) * -100;
