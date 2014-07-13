@@ -3,7 +3,8 @@
   height: 100%;
 }
 .my-zoom-wrapper {
-  margin: 100px;
+  float: left;
+  margin: 40px;
   width: 200px;
   height: 200px;
   border: 8px solid #666;
