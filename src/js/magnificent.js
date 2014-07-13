@@ -1,13 +1,16 @@
 (function (root) {
 
   var Zoom = function Zoom (options) {
-    console.log('new');
-    this.options = options;
+    this.options = $.extend({}, Zoom.defaultOptions, options);
     this.init();
   };
 
+  Zoom.defaultOptions = {
+    smooth: true,
+    smoothFactor: 8
+  };
+
   Zoom.prototype.init = function () {
-    console.log('init');
     this.$element = $(this.options.element);
     this.$zoomed = $('<div>', {
       'class': 'mg-zoomed'
@@ -35,6 +38,10 @@
     this.frame();
   };
 
+  Zoom.prototype.getZoom = function () {
+    return this.goal.zoom;
+  };
+
   Zoom.prototype.setZoom = function (zoom) {
     if (zoom === this.goal.zoom) {
       return false;
@@ -52,9 +59,12 @@
     this.$zoomed.css(position);
   };
 
+  /**
+   * Animation loop - each frame.
+   */
   Zoom.prototype.frame = function () {
     var _this = this;
-    var factor = 8;
+    var factor = this.options.smooth === false ? 1 : this.options.smoothFactor;
     this.state.center.x += (this.goal.center.x - this.state.center.x) / factor;
     this.state.center.y += (this.goal.center.y - this.state.center.y) / factor;
     this.state.zoom += (this.goal.zoom - this.state.zoom) / factor;
@@ -82,6 +92,9 @@
     };
   };
 
+  /**
+   * Block event if not on the instance element.
+   */
   Zoom.prototype.blockEvent = function (e) {
     var _this = this;
     if (! _this.$element.is(e.target)) {
@@ -119,17 +132,13 @@
         x: x,
         y: y
       };
-      // _this.position();
     });
     this.$element.on('mousewheel', function (e) {
       if (_this.blockEvent(e)) return;
       e.preventDefault();
       var zoom = _this.goal.zoom;
-      // zoom *= 1 + (e.deltaY * 0.5);
       zoom += e.deltaY * 0.5;
       var changed = _this.setZoom(zoom);
-      // if (! changed) return;
-      // _this.position();
     });
   };
 
