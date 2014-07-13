@@ -89,25 +89,37 @@
     return true;
   };
 
+    /*
+    0.0 -> 0.0
+    0.2 -> 0.0
+    0.5 -> 0.5
+    0.8 -> 1.0
+    1.0 -> 1.0
+    */
+  Zoom.prototype.adjustPosition = function (pt) {
+    var gutter = this.options.gutter;
+    var guttered = 1.0 - gutter;
+    var mult = 0.5 / (guttered / 2);
+    var dx = pt - 0.5;
+    var ax = (dx * mult) + 0.5;
+    if (pt > 0.5) {
+      pt = Math.min(ax, 1);
+    }
+    else {
+      pt = Math.max(ax, 0);
+    }
+    return pt;
+  };
+
   /**
    * @param {Number} dir 1 (in) or -1 (out).
    */
   Zoom.prototype.nextCenter = function (center) {
     var x = center.x;
     var y = center.y;
-    var gutter = this.options.gutter;
-    if (x > 0.5) {
-      x = Math.min(x + gutter, 1);
-    }
-    else {
-      x = Math.max(x - gutter, 0);
-    }
-    if (y > 0.5) {
-      y = Math.min(y + gutter, 1);
-    }
-    else {
-      y = Math.max(y - gutter, 0);
-    }
+    x = this.adjustPosition(x);
+    y = this.adjustPosition(y);
+
     return {
       x: x,
       y: y
