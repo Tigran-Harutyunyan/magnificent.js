@@ -21,6 +21,8 @@
 
   Zoom.prototype.init = function () {
     this.$element = $(this.options.element);
+    this.$positionElement = this.options.positionElement ? $(this.options.positionElement) : this.$element;
+    this.$zoomElement = this.options.zoomElement ? $(this.options.zoomElement) : this.$positionElement;
     this.$zoomed = $('<div>', {
       'class': 'mg-zoomed'
     });
@@ -129,7 +131,7 @@
    */
   Zoom.prototype.blockEvent = function (e) {
     var _this = this;
-    if (! _this.$element.is(e.target)) {
+    if (! ( _this.$positionElement.is(e.target) || _this.$zoomElement.is(e.target) ) ) {
       console.log('blocked event');
       return true;
     };
@@ -138,7 +140,7 @@
   Zoom.prototype.getWidth = function () {
     var _this = this;
     if (! _this.cache.width) {
-      _this.cache.width = _this.$element.width();
+      _this.cache.width = _this.$positionElement.width();
     }
     return _this.cache.width;
   };
@@ -146,14 +148,14 @@
   Zoom.prototype.getHeight = function () {
     var _this = this;
     if (! _this.cache._height) {
-      _this.cache.height = _this.$element.height();
+      _this.cache.height = _this.$positionElement.height();
     }
     return _this.cache.height;
   };
 
   Zoom.prototype.listen = function () {
     var _this = this;
-    this.$element.on('mousemove', function (e) {
+    this.$positionElement.on('mousemove', function (e) {
       if (_this.blockEvent(e)) return;
       e.preventDefault();
       var width = _this.getWidth();
@@ -165,7 +167,7 @@
         y: y
       });
     });
-    this.$element.on('mousewheel', function (e) {
+    this.$zoomElement.on('mousewheel', function (e) {
       if (_this.blockEvent(e)) return;
       e.preventDefault();
       var zoom = _this.goal.zoom;
