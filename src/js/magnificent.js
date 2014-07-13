@@ -16,20 +16,33 @@
     smoothFactor: 8,
     minZoom: 1.0,
     zoomBounce: true,
-    zoomBounceTime: 50
+    zoomBounceTime: 50,
+    gutter: 0.2
   };
 
   Zoom.prototype.init = function () {
+
     this.$element = $(this.options.element);
-    this.$positionElement = this.options.positionElement ? $(this.options.positionElement) : this.$element;
-    this.$zoomElement = this.options.zoomElement ? $(this.options.zoomElement) : this.$positionElement;
+
+    if (this.options.controllerElement) {
+      this.$controllerElement = $(this.options.controllerElement);
+    }
+    else {
+      this.$controllerElement = $('<div>', {
+        'class': 'mg-zoom-controller'
+      });
+      this.$element.append(this.$controllerElement);
+    }
+
     this.$zoomed = $('<div>', {
       'class': 'mg-zoomed'
     });
+
     this.$img = $('<img>', {
       'class': 'mg-img-md',
       src: this.options.src.lg
     });
+
     this.$zoomed.append(this.$img);
     this.$element.append(this.$zoomed);
 
@@ -40,6 +53,7 @@
         y: 0
       }
     };
+
     this.goal = $.extend({}, this.state);
 
     this.cache = {};
@@ -76,7 +90,33 @@
   /**
    * @param {Number} dir 1 (in) or -1 (out).
    */
-  Zoom.prototype.nextZoom = function (zoom, dir) {
+  Zoom.prototype.nextCenter = function (center) {
+    var x = center.x;
+    var y = center.y;
+    var gutter = this.options.gutter;
+    if (x > 0.5) {
+      x = Math.min(x + gutter, 1);
+    }
+    else {
+      x = Math.max(x - gutter, 0);
+    }
+    if (y > 0.5) {
+      y = Math.min(y + gutter, 1);
+    }
+    else {
+      y = Math.max(y - gutter, 0);
+    }
+    return {
+      x: x,
+      y: y
+    };
+  };
+
+  /**
+   * @param { x: x, y: y } center
+   */
+  Zoom.prototype.nextZoom = function (dir) {
+    var zoom = this.goal.zoom;
     return zoom + (dir * 0.5);
   };
 
@@ -131,7 +171,7 @@
    */
   Zoom.prototype.blockEvent = function (e) {
     var _this = this;
-    if (! ( _this.$positionElement.is(e.target) || _this.$zoomElement.is(e.target) ) ) {
+    if (! _this.$controllerElement.is(e.target)) {
       console.log('blocked event');
       return true;
     };
@@ -140,7 +180,7 @@
   Zoom.prototype.getWidth = function () {
     var _this = this;
     if (! _this.cache.width) {
-      _this.cache.width = _this.$positionElement.width();
+      _this.cache.width = _this.$controllerElement.width();
     }
     return _this.cache.width;
   };
@@ -148,30 +188,30 @@
   Zoom.prototype.getHeight = function () {
     var _this = this;
     if (! _this.cache._height) {
-      _this.cache.height = _this.$positionElement.height();
+      _this.cache.height = _this.$controllerElement.height();
     }
     return _this.cache.height;
   };
 
   Zoom.prototype.listen = function () {
     var _this = this;
-    this.$positionElement.on('mousemove', function (e) {
+    this.$controllerElement.on('mousemove', function (e) {
       if (_this.blockEvent(e)) return;
       e.preventDefault();
       var width = _this.getWidth();
       var height = _this.getHeight();
       var x = e.offsetX / width;
       var y = e.offsetY / height;
-      _this.setCenter({
+      var center = _this.nextCenter({
         x: x,
         y: y
       });
+      _this.setCenter(center);
     });
-    this.$zoomElement.on('mousewheel', function (e) {
+    this.$controllerElement.on('mousewheel', function (e) {
       if (_this.blockEvent(e)) return;
       e.preventDefault();
-      var zoom = _this.goal.zoom;
-      zoom = _this.nextZoom(zoom, e.deltaY);
+      var zoom = _this.nextZoom(e.deltaY);
       var changed = _this.setZoom(zoom);
     });
   };

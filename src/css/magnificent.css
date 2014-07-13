@@ -2,9 +2,20 @@
   position: relative;
   overflow: hidden;
 }
+.mg-zoom-controller-wrapper {
+  position: relative;
+}
+.mg-zoom-controller {
+  position: absolute;
+  z-index: 1;
+  top: 0;
+  bottom: 0;
+  left: 0;
+  right: 0;
+}
 .mg-zoomed {
   position: absolute;
-  z-index: -1;
+  z-index: 0;
 }
 .mg-zoomed img {
   width: 100%;
