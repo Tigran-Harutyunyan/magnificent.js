@@ -13,11 +13,12 @@
 
   Zoom.defaultOptions = {
     smooth: true,
-    smoothFactor: 8,
+    smoothFactor: 0.5,
     minZoom: 1.0,
     zoomBounce: true,
     zoomBounceTime: 50,
-    gutter: 0.2
+    gutter: 0.2,
+    frameTime: 1000 / 60
   };
 
   Zoom.prototype.init = function () {
@@ -138,14 +139,24 @@
    */
   Zoom.prototype.frame = function () {
     var _this = this;
-    var factor = this.options.smooth === false ? 1 : this.options.smoothFactor;
-    this.state.center.x += (this.goal.center.x - this.state.center.x) / factor;
-    this.state.center.y += (this.goal.center.y - this.state.center.y) / factor;
-    this.state.zoom += (this.goal.zoom - this.state.zoom) / factor;
+    var factor = 1;
+    var positionSmoothFactor = factor;
+    var zoomSmoothFactor = factor;
+    if (this.options.smooth) {
+      factor = this.options.smoothFactor * this.options.frameTime;
+      positionSmoothFactor = factor;
+      zoomSmoothFactor = factor / 2;
+    }
+
+    this.state.center.x += (this.goal.center.x - this.state.center.x) / positionSmoothFactor;
+    this.state.center.y += (this.goal.center.y - this.state.center.y) / positionSmoothFactor;
+
+    this.state.zoom += (this.goal.zoom - this.state.zoom) / zoomSmoothFactor;
+
     this.position();
     setTimeout(function () {
       _this.frame();
-    }, 10);
+    }, this.options.frameTime);
   }
 
   Zoom.prototype.computePosition = function () {
