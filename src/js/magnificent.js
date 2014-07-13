@@ -1,13 +1,22 @@
 (function (root) {
 
   var Zoom = function Zoom (options) {
-    this.options = $.extend({}, Zoom.defaultOptions, options);
+    options = this.options = $.extend({}, Zoom.defaultOptions, options);
+
+    // shouldn't zoom bounce if not smooth
+    if (! options.smooth) {
+      options.zoomBounce = false;
+    }
+
     this.init();
   };
 
   Zoom.defaultOptions = {
     smooth: true,
-    smoothFactor: 8
+    smoothFactor: 8,
+    minZoom: 1.0,
+    zoomBounce: true,
+    zoomBounceTime: 50
   };
 
   Zoom.prototype.init = function () {
@@ -43,15 +52,38 @@
   };
 
   Zoom.prototype.setZoom = function (zoom) {
+    var _this = this;
     if (zoom === this.goal.zoom) {
       return false;
     }
-    if (zoom < 1.0) {
-      zoom = 1.0;
+    if (zoom < this.options.minZoom) {
+      if (this.options.zoomBounce) {
+        setTimeout(function () {
+          _this.goal.zoom = _this.options.minZoom;
+          console.log('bounced');
+        }, _this.options.zoomBounceTime);
+      }
+      else {
+        zoom = _this.options.minZoom;
+      }
     }
     this.goal.zoom = zoom;
     return true;
   };
+
+  /**
+   * @param {Number} dir 1 (in) or -1 (out).
+   */
+  Zoom.prototype.nextZoom = function (zoom, dir) {
+    return zoom + (dir * 0.5);
+  };
+
+  /**
+   * @param { x: x, y: y } center
+   */
+  Zoom.prototype.setCenter = function (center) {
+    this.goal.center = center;
+  }
 
   Zoom.prototype.position = function () {
     // console.log(this.state);
@@ -98,7 +130,7 @@
   Zoom.prototype.blockEvent = function (e) {
     var _this = this;
     if (! _this.$element.is(e.target)) {
-      console.log('no');
+      console.log('blocked event');
       return true;
     };
   };
@@ -128,16 +160,16 @@
       var height = _this.getHeight();
       var x = e.offsetX / width;
       var y = e.offsetY / height;
-      _this.goal.center = {
+      _this.setCenter({
         x: x,
         y: y
-      };
+      });
     });
     this.$element.on('mousewheel', function (e) {
       if (_this.blockEvent(e)) return;
       e.preventDefault();
       var zoom = _this.goal.zoom;
-      zoom += e.deltaY * 0.5;
+      zoom = _this.nextZoom(zoom, e.deltaY);
       var changed = _this.setZoom(zoom);
     });
   };
