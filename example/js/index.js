@@ -25,10 +25,26 @@ $(function () {
   var zoom3 = new Zoom({
     element: $zoom3,
     controllerElement: $zoom3Controller,
+    gutter: 0.4,
     src: {
       lg: 'img/color-md.jpg',
       md: 'img/color-md.jpg'
     }
+  });
+
+  var $zoom3Lens = $('<div>', {
+    'class': 'mg-zoom-lens'
+  });
+
+  var zoom3Lens = new ZoomLens({
+    element: $zoom3Lens,
+    zoomElement: $zoom3
+  });
+
+  $zoom3Controller.append($zoom3Lens);
+  $zoom3Controller.css({
+    'background-image': 'url("img/color-md.jpg")',
+    'background-size': '100%'
   });
 
 });
