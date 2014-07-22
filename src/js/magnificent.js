@@ -259,27 +259,36 @@
     return _this.cache.height;
   };
 
+  Zoom.prototype.onMouseMove = function (e) {
+    var _this = this;
+    var $controller = this.$controllerElement;
+
+    var offset = $controller.offset();
+    var offsetX = e.pageX - offset.left;
+    var offsetY = e.pageY - offset.top;
+    var width = _this.getWidth();
+    var height = _this.getHeight();
+    var x = offsetX / width;
+    var y = offsetY / height;
+    var center = _this.nextCenter({
+      x: x,
+      y: y
+    });
+    _this.setCenter(center);
+  };
+
   Zoom.prototype.listen = function () {
     var _this = this;
     var $controller = this.$controllerElement;
 
     $controller.on('mousemove', function (e) {
-      var offset = $controller.offset();
-      var offsetX = e.pageX - offset.left;
-      var offsetY = e.pageY - offset.top;
-      var width = _this.getWidth();
-      var height = _this.getHeight();
-      var x = offsetX / width;
-      var y = offsetY / height;
-      var center = _this.nextCenter({
-        x: x,
-        y: y
-      });
-      _this.setCenter(center);
+      _this.onMouseMove(e);
     });
 
     $controller.on('mousewheel', function (e) {
       e.preventDefault();
+      console.log(e);
+      _this.onMouseMove(e);
       var zoom = _this.nextZoom(e.deltaY);
       var changed = _this.setZoom(zoom);
     });
