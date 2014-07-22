@@ -62,7 +62,8 @@
       center: {
         x: 0,
         y: 0
-      }
+      },
+      gutter: 0.5
     };
 
     this.goal = $.extend({}, this.state);
@@ -93,9 +94,9 @@
         zoom = _this.options.minZoom;
       }
     }
-    console.log('zoom', zoom);
-    this.$element.trigger('zoom.change.mg', zoom);
+    this.$element.trigger('zoom-goal-change-mg', zoom);
     this.goal.zoom = zoom;
+    this.goal.gutter = 1 / zoom;
     return true;
   };
 
@@ -110,7 +111,7 @@
 
     if (this.options.positioning === 'gutter') {
 
-      var gutter = this.options.gutter;
+      var gutter = this.goal.gutter;
       var guttered = 1.0 - gutter;
       var mult = mult || (0.5 / (guttered / 2));
       var dx = pt - 0.5;
@@ -164,14 +165,13 @@
     this.goal.center = gutteredCenter;
     this.goal.focusCenter = focusCenter;
 
-    this.$element.trigger('gutteredCenter.change.mg', gutteredCenter);
-    this.$element.trigger('focusCenter.change.mg', focusCenter);
+    this.$element.trigger('gutteredCenter-goal-change-mg', gutteredCenter);
+    this.$element.trigger('focusCenter-goal-change-mg', focusCenter);
   };
 
   Zoom.prototype.position = function () {
-    // console.log(this.state);
     var percents = this.computePercents();
-    this.$element.trigger('percents.change.mg', percents);
+    this.$element.trigger('percents-change-mg', percents);
     var style = this.computeStyle(percents);
     this.$zoomed.css(style);
   };
@@ -194,6 +194,10 @@
     this.state.center.y += (this.goal.center.y - this.state.center.y) / positionSmoothFactor;
 
     this.state.zoom += (this.goal.zoom - this.state.zoom) / zoomSmoothFactor;
+
+    this.$element.trigger('gutteredCenter-change-mg', this.state.center);
+    this.$element.trigger('focusCenter-change-mg', this.state.center);
+    this.$element.trigger('zoom-change-mg', this.state.zoom);
 
     this.position();
     setTimeout(function () {

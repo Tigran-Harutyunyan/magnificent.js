@@ -25,12 +25,19 @@
       }
     };
 
-    this.$zoomElement.on('gutteredCenter.change.mg', function (e, center) {
+    // var centerEvent = 'gutteredCenter-change-mg';
+    var centerEvent = 'gutteredCenter-goal-change-mg';
+    this.$zoomElement.on(centerEvent, function (e, center) {
       _this.state.center = center;
       _this.position();
     });
 
-    this.$zoomElement.on('zoom.change.mg', function (e, zoom) {
+    var zoomEvent = 'zoom-change-mg';
+    // var zoomEvent = 'zoom-goal-change-mg';
+    this.$zoomElement.on(zoomEvent, function (e, zoom) {
+      if (zoom < 1) {
+        zoom = 1;
+      }
       _this.state.zoom = zoom;
       _this.position();
     });
@@ -62,7 +69,6 @@
       height: heightPercent + '%',
       width: widthPercent + '%'
     };
-    console.log(css);
     this.$element.css(css)
   };
 
